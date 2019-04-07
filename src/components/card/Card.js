@@ -9,12 +9,10 @@ export default class Card extends Component {
 
   componentDidMount() {
     const { name, id, spriteUrl } = this.props;
-    this.setState({ name, spriteUrl });
+    this.setState({ name, spriteUrl, id });
   }
 
   render() {
-    // const { name } = this.props;
-
     return (
       <div className="col-md-3 col-sm-6 mb-5">
         <div className="card">
@@ -22,11 +20,12 @@ export default class Card extends Component {
             <h5>{this.state.name.toUpperCase()}</h5>
           </div>
           <div className="card-body">
-            <img
-              className="card-img-top rounded mx-auto at-2"
-              src={this.state.spriteUrl}
-
-            />
+            <Link to={`pokemon/${this.state.id}`}>
+              <img
+                className="card-img-top rounded mx-auto at-2"
+                src={this.state.spriteUrl}
+              />
+            </Link>
           </div>
         </div>
       </div>

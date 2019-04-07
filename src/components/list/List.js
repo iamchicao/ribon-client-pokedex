@@ -5,19 +5,18 @@ import axios from "axios";
 export default class List extends Component {
   state = {
     url: "http://127.0.0.1:3000/api/v1/pokemons",
-    pokemon: null
+    pokemon: null,
+    search: ""
   };
 
   async componentDidMount() {
     const res = await axios.get(this.state.url);
-    console.log(res.data[0]);
-
     this.setState({ pokemon: res.data });
   }
 
   render() {
     return (
-      <React.Fragment>
+      <>
         {this.state.pokemon ? (
           <div className="row">
             {this.state.pokemon.map(pokemon => (
@@ -32,7 +31,7 @@ export default class List extends Component {
         ) : (
           <h1>Loading</h1>
         )}
-      </React.Fragment>
+      </>
     );
   }
 }
