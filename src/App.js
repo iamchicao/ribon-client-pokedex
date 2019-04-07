@@ -18,7 +18,6 @@ class App extends Component {
             <Switch>
               <Route exact path="/" component={Dashboard} />
               <Route exact path="/pokemon/:id" component={Details} />
-              <Route exact path="/pokemon/new" />
             </Switch>
           </div>
         </div>
