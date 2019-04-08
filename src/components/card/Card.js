@@ -20,7 +20,7 @@ export default class Card extends Component {
             <h5>{this.state.name.toUpperCase()}</h5>
           </div>
           <div className="card-body">
-            <Link to={`pokemon/${this.state.id}`}>
+            <Link to={`pokemon/details/${this.state.id}`}>
               <img
                 className="card-img-top rounded mx-auto at-2"
                 src={this.state.spriteUrl}

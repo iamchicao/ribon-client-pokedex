@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import axios from "axios";
-import { Link } from "react-router-dom";
+import { Link, Redirect } from "react-router-dom";
 
 export default class Details extends Component {
   state = {
@@ -14,15 +14,15 @@ export default class Details extends Component {
   async componentDidMount() {
     const { id } = this.props.match.params;
     const pokemonUrl = `http://localhost:3000/api/v1/pokemons/${id}`;
-
     const res = await axios.get(pokemonUrl);
-    const name = res.data.name;
-    const spriteUrl = res.data.sprite_front_url;
-    const types = res.data.types.map(type => type.name);
-    console.log(types);
-    const evolutions = this.getEvolutions(res.data.evolutions);
-    console.log(evolutions);
-    this.setState({ name, spriteUrl, types, id, evolutions });
+
+    this.setState({
+      name: res.data.name,
+      spriteUrl: res.data.sprite_front_url,
+      types: res.data.types.map(type => type.name),
+      id,
+      evolutions: this.getEvolutions(res.data.evolutions)
+    });
   }
 
   getEvolutions(evolutions) {
@@ -35,6 +35,13 @@ export default class Details extends Component {
     });
     return result.flat();
   }
+
+  handleDelete = async () => {
+    await axios.delete(
+      `http://localhost:3000/api/v1/pokemons/${this.state.id}`
+    );
+    await this.props.history.push("/");
+  };
 
   render() {
     return (
@@ -80,10 +87,14 @@ export default class Details extends Component {
               </div>
               <div>
                 <Link to={`${this.state.id}/update`}>
-                  <button className="card-img-top rounded mx-auto at-2">
-                    Update
-                  </button>
+                  <button className="btn btn-primary">Update</button>
                 </Link>
+                <button
+                  className="btn btn-danger"
+                  onClick={event => this.handleDelete(event)}
+                >
+                  Delete
+                </button>
               </div>
             </div>
           </div>

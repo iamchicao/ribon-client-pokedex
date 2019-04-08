@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import List from "../list/List";
 import Search from "../search/Search";
+import { Link } from "react-router-dom";
 import axios from "axios";
 
 export default class Dashboard extends Component {
@@ -40,9 +41,14 @@ export default class Dashboard extends Component {
     let filtered = this.filter();
 
     return (
-      <div className="row">
-        <Search handleInput={this.handleInput} />
-        <div className="col">
+      <div>
+        <div className="row mt-4">
+          <Search handleInput={this.handleInput} />
+          <Link to={"/pokemon/new"}>
+            <button className="btn btn-success">Create a new pokemon!</button>
+          </Link>
+        </div>
+        <div className="mt-4">
           <>
             <List pokemons={filtered} />
           </>
