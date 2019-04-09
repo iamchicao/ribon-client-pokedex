@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React from "react";
 
 const Checkbox = props => {
   // console.log(props);
@@ -7,9 +7,9 @@ const Checkbox = props => {
       <input
         className="form-check-input"
         type="checkbox"
+        value={props.value}
         checked={props.checked}
-        onChange={props.handleCheckbox}
-        value={props.id}
+        onChange={props.onChange}
       />
       <label className="form-check-label">{props.name}</label>
     </div>

@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import axios from "axios";
-import { Link, Redirect } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 export default class Details extends Component {
   state = {
@@ -11,11 +11,24 @@ export default class Details extends Component {
     evolutions: []
   };
 
+  componentDidUpdate(prevProps) {
+    const idPrev = prevProps.match.params;
+    const idAct = this.props.match.params;
+    
+    if (idPrev !== idAct) {
+      this.fetchData();
+    }
+  }
+
   async componentDidMount() {
+    await this.fetchData();
+  }
+
+  async fetchData() {
+    console.log(this.props);
     const { id } = this.props.match.params;
     const pokemonUrl = `http://localhost:3000/api/v1/pokemons/${id}`;
     const res = await axios.get(pokemonUrl);
-
     this.setState({
       name: res.data.name,
       spriteUrl: res.data.sprite_front_url,
@@ -74,19 +87,24 @@ export default class Details extends Component {
               <div className="col-md-9">
                 {" Next evolutions: "}
                 {this.state.evolutions.map(evolution => (
-                  <div>
-                    <h5 key={evolution.name} className="badge badge-pill mr-1">
-                      {evolution.name}
-                    </h5>
-                    <img
-                      src={evolution.sprite_front_url}
-                      className="card-img-top-rounded mx auto mt-2"
-                    />
+                  <div key={evolution.id}>
+                    <h5 className="badge badge-pill mr-1">{evolution.name}</h5>
+                    <Link to={{ pathname: `./${evolution.id}` }}>
+                      <img
+                        src={evolution.sprite_front_url}
+                        className="card-img-top-rounded mx auto mt-2"
+                      />
+                    </Link>
                   </div>
                 ))}
               </div>
               <div>
-                <Link to={`${this.state.id}/update`}>
+                <Link
+                  to={{
+                    pathname: `../edit/${this.state.id}`,
+                    state: { id: this.state.id }
+                  }}
+                >
                   <button className="btn btn-primary">Update</button>
                 </Link>
                 <button
