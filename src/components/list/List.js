@@ -2,8 +2,6 @@ import React from "react";
 import Card from "../card/Card";
 
 export default function List(props) {
-  console.log(props);
-
   let pokemonCards = props.pokemons.map(pokemon => (
     <Card
       key={pokemon.name}

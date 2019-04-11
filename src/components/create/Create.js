@@ -3,7 +3,10 @@ import axios from "axios";
 import Checkbox from "../common/Checkbox";
 import Select from "../common/Select";
 
-export default class Create extends Component {
+import { connect } from "react-redux";
+import { createPokemon } from "../../store/actions/pokemonActions";
+
+class Create extends Component {
   state = {
     id: " ",
     name: " ",
@@ -68,6 +71,7 @@ export default class Create extends Component {
     } catch (err) {
       alert("Algo de errado aconteceu!");
     }
+    this.props.createPokemon(this.state);
   };
 
   handleOnChangeInputsText = event => {
@@ -91,6 +95,8 @@ export default class Create extends Component {
   };
 
   render() {
+    console.log(this.props);
+
     return (
       <div className="col mt-3">
         <div className="card">
@@ -159,3 +165,16 @@ export default class Create extends Component {
     );
   }
 }
+
+const mapDispatchToProps = dispatch => {
+  return {
+    createPokemon: pokemon => {
+      dispatch(createPokemon(pokemon));
+    }
+  };
+};
+
+export default connect(
+  null,
+  mapDispatchToProps
+)(Create);

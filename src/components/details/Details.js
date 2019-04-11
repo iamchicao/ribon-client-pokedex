@@ -1,69 +1,53 @@
 import React, { Component } from "react";
-import axios from "axios";
 import { Link } from "react-router-dom";
+import { connect } from "react-redux";
+import {
+  deletePokemon,
+  fetchPokemonById
+} from "../../store/actions/pokemonActions";
 
-export default class Details extends Component {
-  state = {
-    name: "",
-    spriteUrl: "",
-    id: "",
-    types: [],
-    evolutions: []
-  };
+class Details extends Component {
+  componentDidMount() {
+    this.props.fetchPokemonById(this.props.match.params.id);
+  }
 
   componentDidUpdate(prevProps) {
     const idPrev = prevProps.match.params;
     const idAct = this.props.match.params;
-    
+
     if (idPrev !== idAct) {
-      this.fetchData();
+      this.props.fetchPokemonById(this.props.match.params.id);
     }
   }
 
-  async componentDidMount() {
-    await this.fetchData();
-  }
-
-  async fetchData() {
-    console.log(this.props);
-    const { id } = this.props.match.params;
-    const pokemonUrl = `http://localhost:3000/api/v1/pokemons/${id}`;
-    const res = await axios.get(pokemonUrl);
-    this.setState({
-      name: res.data.name,
-      spriteUrl: res.data.sprite_front_url,
-      types: res.data.types.map(type => type.name),
-      id,
-      evolutions: this.getEvolutions(res.data.evolutions)
-    });
-  }
-
-  getEvolutions(evolutions) {
+  flattenEvolutions(evolutions) {
     let result = [];
     evolutions.forEach(evolution => {
       result.push(evolution);
       if (evolution.evolutions.length > 0) {
-        result.push(this.getEvolutions(evolution.evolutions));
+        result.push(this.flattenEvolutions(evolution.evolutions));
       }
     });
     return result.flat();
   }
 
   handleDelete = async () => {
-    await axios.delete(
-      `http://localhost:3000/api/v1/pokemons/${this.state.id}`
-    );
-    await this.props.history.push("/");
+    console.log(this.props.match.params.id);
+    this.props.deletePokemon(this.props.match.params.id);
+    this.props.history.push("/");
   };
 
   render() {
+    const { name, types, sprite_front_url, evolutions } = this.props.pokemon;
+    const flattenEvolutions = this.flattenEvolutions(evolutions);
+
     return (
       <div className="col">
         <div className="card">
           <div className="card-header">
             <div className="row">
               <div className="col-5">
-                <h5>{this.state.name}</h5>
+                <h5>{name}</h5>
               </div>
             </div>
           </div>
@@ -71,22 +55,22 @@ export default class Details extends Component {
             <div className="row allign-items-center">
               <div className="col-md-3">
                 <img
-                  src={this.state.spriteUrl}
+                  src={sprite_front_url}
                   className="card-img-top-rounded mx auto mt-2"
                 />
               </div>
               <div className="col-md-9">
                 {" "}
                 {"Types: "}
-                {this.state.types.map(type => (
-                  <h5 key={type} className="badge badge-pill mr-1">
-                    {type}
+                {types.map(type => (
+                  <h5 key={type.name} className="badge badge-pill mr-1">
+                    {type.name}
                   </h5>
                 ))}
               </div>
               <div className="col-md-9">
                 {" Next evolutions: "}
-                {this.state.evolutions.map(evolution => (
+                {flattenEvolutions.map(evolution => (
                   <div key={evolution.id}>
                     <h5 className="badge badge-pill mr-1">{evolution.name}</h5>
                     <Link to={{ pathname: `./${evolution.id}` }}>
@@ -101,8 +85,7 @@ export default class Details extends Component {
               <div>
                 <Link
                   to={{
-                    pathname: `../edit/${this.state.id}`,
-                    state: { id: this.state.id }
+                    pathname: `../edit/${this.props.match.params.id}`
                   }}
                 >
                   <button className="btn btn-primary">Update</button>
@@ -121,3 +104,14 @@ export default class Details extends Component {
     );
   }
 }
+
+const mapStateToProps = (state, ownProps) => {
+  return {
+    pokemon: state.details
+  };
+};
+
+export default connect(
+  mapStateToProps,
+  { fetchPokemonById, deletePokemon }
+)(Details);

@@ -2,44 +2,31 @@ import React, { Component } from "react";
 import List from "../list/List";
 import Search from "../search/Search";
 import { Link } from "react-router-dom";
-import axios from "axios";
+import { connect } from "react-redux";
+import { fetchPokemons } from "../../store/actions/pokemonActions";
 
-export default class Dashboard extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      pokemons: [],
-      searched: ""
-    };
-  }
 
+class Dashboard extends Component {
   componentDidMount() {
-    this.fetchData();
-  }
-
-  async fetchData() {
-    let url = "http://127.0.0.1:3000/api/v1/pokemons";
-    const res = await axios.get(url);
-    await this.setState({ pokemons: res.data });
+    this.props.fetchPokemons();
   }
 
   handleInput = e => {
-    console.log(this.state.searched);
-    this.setState({ searched: e.target.value });
+    console.log(e.target.value);
   };
 
-  filter() {
-    let filtered = this.state.pokemons.filter(pokemon => {
-      return pokemon.name
-        .toLowerCase()
-        .includes(this.state.searched.toLowerCase());
-    });
-    return filtered;
-  }
+  // filter() {
+  //   let filtered = this.props.pokemons.pokemons.filter(pokemon => {
+  //     return pokemon.name
+  //       .toLowerCase()
+  //       .includes(this.props.pokemons.searched.toLowerCase());
+  //   });
+  //   console.log(filtered);
+  //   return filtered;
+  // }
 
   render() {
-    let filtered = this.filter();
-
+    console.log(this.props);
     return (
       <div>
         <div className="row mt-4">
@@ -50,10 +37,22 @@ export default class Dashboard extends Component {
         </div>
         <div className="mt-4">
           <>
-            <List pokemons={filtered} />
+            <List pokemons={this.props.pokemons} />
           </>
         </div>
       </div>
     );
   }
 }
+
+const mapStateToProps = state => {
+  return {
+    pokemons: state.pokemons.items,
+    searched: state.pokemons.searched
+  };
+};
+
+export default connect(
+  mapStateToProps,
+  { fetchPokemons }
+)(Dashboard);
