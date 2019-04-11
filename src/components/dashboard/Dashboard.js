@@ -5,28 +5,32 @@ import { Link } from "react-router-dom";
 import { connect } from "react-redux";
 import { fetchPokemons } from "../../store/actions/pokemonActions";
 
-
 class Dashboard extends Component {
+  state = {
+    searched: ""
+  };
+
   componentDidMount() {
     this.props.fetchPokemons();
   }
 
   handleInput = e => {
-    console.log(e.target.value);
+    this.setState({ searched: e.target.value });
   };
 
-  // filter() {
-  //   let filtered = this.props.pokemons.pokemons.filter(pokemon => {
-  //     return pokemon.name
-  //       .toLowerCase()
-  //       .includes(this.props.pokemons.searched.toLowerCase());
-  //   });
-  //   console.log(filtered);
-  //   return filtered;
-  // }
+  filter() {
+    let filtered = this.props.pokemons.filter(pokemon => {
+      return pokemon.name
+        .toLowerCase()
+        .includes(this.state.searched.toLowerCase());
+    });
+    return filtered;
+  }
 
   render() {
     console.log(this.props);
+    let filtered = this.filter();
+
     return (
       <div>
         <div className="row mt-4">
@@ -37,7 +41,7 @@ class Dashboard extends Component {
         </div>
         <div className="mt-4">
           <>
-            <List pokemons={this.props.pokemons} />
+            <List pokemons={filtered} />
           </>
         </div>
       </div>

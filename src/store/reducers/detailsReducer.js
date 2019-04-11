@@ -9,7 +9,6 @@ const detailsReducer = (state = initialState, action) => {
   console.log(action.type);
   switch (action.type) {
     case "FETCH_POKEMON_BY_ID":
-      console.log(action.payload);
       return {
         ...state,
         name: action.payload.name,

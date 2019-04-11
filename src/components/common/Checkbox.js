@@ -1,7 +1,6 @@
 import React from "react";
 
 const Checkbox = props => {
-  // console.log(props);
   return (
     <div className="form-check form-check-inline">
       <input

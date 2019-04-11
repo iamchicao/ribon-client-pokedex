@@ -41,7 +41,6 @@ export default class Update extends Component {
     });
 
     if (pokemon.data.evolves_from != null) {
-      console.log("auu");
       this.setState({
         haveEvolution: true,
         evolutionSelected: evolutionsList.data.find(
