@@ -4,7 +4,7 @@ const initialState = {
 
 const pokeTypesReducer = (state = initialState, action) => {
   switch (action.type) {
-    case "FETCH_TYPES":
+    case "FETCH_POKETYPES":
       return {
         ...state,
         items: action.payload

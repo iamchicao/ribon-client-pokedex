@@ -2,7 +2,7 @@ import React from "react";
 
 const Select = props => {
     return (
-    <option onChange={props.handleSelect} value={props.name}>
+    <option onChange={props.handleInputChange} value={props.name}>
       {props.name}
     </option>
   );

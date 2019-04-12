@@ -28,7 +28,6 @@ class Dashboard extends Component {
   }
 
   render() {
-    console.log(this.props);
     let filtered = this.filter();
 
     return (
@@ -51,8 +50,7 @@ class Dashboard extends Component {
 
 const mapStateToProps = state => {
   return {
-    pokemons: state.pokemons.items,
-    searched: state.pokemons.searched
+    pokemons: state.pokemons.items
   };
 };
 

@@ -20,9 +20,6 @@ const pokemonReducer = (state = initialState, action) => {
       return {
         ...state
       };
-    // case "SEARCH_POKEMON":
-    //   console.log("searched pokemon");
-    //   break;
     default:
       return state;
   }
