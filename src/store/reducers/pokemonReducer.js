@@ -1,6 +1,8 @@
 const initialState = {
   items: [],
-  searched: ""
+  searched: "",
+  errors: null,
+  success: false
 };
 
 const pokemonReducer = (state = initialState, action) => {
@@ -19,6 +21,22 @@ const pokemonReducer = (state = initialState, action) => {
     case "DELETE_POKEMON":
       return {
         ...state
+      };
+    case "CREATE_POKEMON":
+      return {
+        ...state,
+        item: action.payload,
+        success: true
+      };
+    case "REQUEST_FAILURE":
+      return {
+        ...state,
+        errors: action.payload
+      };
+    case "CLEAR_ERROR":
+      return {
+        ...state,
+        errors: action.payload
       };
     default:
       return state;

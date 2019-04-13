@@ -10,6 +10,15 @@ class Dashboard extends Component {
     searched: ""
   };
 
+  componentDidUpdate(prevProps) {
+    console.log(this.props.pokemons.length);
+    console.log(prevProps.pokemons.length);
+
+    if (this.props.pokemons.length !== prevProps.pokemons.length) {
+      this.props.fetchPokemons();
+    }
+  }
+
   componentDidMount() {
     this.props.fetchPokemons();
   }

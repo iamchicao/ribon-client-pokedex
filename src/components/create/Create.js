@@ -5,7 +5,8 @@ import Select from "../common/Select";
 import { connect } from "react-redux";
 import {
   createPokemon,
-  fetchPokemons
+  fetchPokemons,
+  clearErrors
 } from "../../store/actions/pokemonActions";
 import { fetchPokeTypes } from "../../store/actions/pokeTypesActions";
 
@@ -13,17 +14,37 @@ class Create extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      errors: null,
       name: "",
-      imgUrl: "",
-      evolutionSelected: "",
-      haveEvolution: false
+      imgUrl: " ",
+      ancestorSelected: "",
+      evolvesFromAnotherPokemon: false
     };
+    console.log("construindo");
   }
 
   componentWillMount() {
     this.props.fetchPokeTypes();
     this.props.fetchPokemons();
-    this.props.types.map(type => (type.checked = false));
+  }
+
+  componentDidUpdate(prevProps) {
+    if (
+      prevProps.pokemons !== this.props.pokemons &&
+      this.props.pokemons.length > 0
+    ) {
+      this.setState({
+        ancestorSelected: this.props.pokemons[0].name
+      });
+    }
+    if (this.props.errors != null) {
+      alert("Um erro aconteceu");
+      this.props.clearErrors();
+    }
+    if (this.props.success) {
+      alert("success");
+      this.props.history.push("/");
+    }
   }
 
   handleCheckboxChange = e => {
@@ -36,6 +57,8 @@ class Create extends Component {
   };
 
   handleInputChange = e => {
+    console.log(e.target.name);
+    console.log(e.target.value);
     this.setState({
       [e.target.name]: e.target.value
     });
@@ -47,8 +70,10 @@ class Create extends Component {
     });
   };
 
-  handleSubmit = e => {
+  handleSubmit = async e => {
     e.preventDefault();
+    console.log(this.props);
+
     let types = [];
 
     this.props.types.filter(type => {
@@ -57,17 +82,36 @@ class Create extends Component {
       }
       return type;
     });
-    console.log(this.state);
-    console.log(types);
+
+    this.setState({ types: types });
+
+    let body = {
+      name: this.state.name.toLowerCase(),
+      sprite_front_url: this.state.imgUrl,
+      types: types,
+      evolves_from: null
+    };
+
+    if (this.state.evolvesFromAnotherPokemon) {
+      this.props.pokemons.filter(pokemon => {
+        if (pokemon.name === this.state.ancestorSelected) {
+          body.evolves_from = pokemon.id;
+        }
+        return pokemon;
+      });
+    }
+
+    this.props.createPokemon(body);
   };
 
   renderEvolutionsList() {
-    return this.state.haveEvolution && this.props.pokemons.length > 0 ? (
+    return this.state.evolvesFromAnotherPokemon &&
+      this.props.pokemons.length > 0 ? (
       <div className="form-group">
         <label>Evolves From</label>
         <select
-          name="evolutionSelected"
-          value={this.state.evolutionSelected}
+          name="ancestorSelected"
+          value={this.state.ancestorSelected}
           onChange={e => this.handleInputChange(e)}
           className="custom-select"
         >
@@ -81,6 +125,7 @@ class Create extends Component {
   }
 
   render() {
+    console.log("rendering");
     return (
       <div className="col mt-3">
         <div className="card">
@@ -93,7 +138,7 @@ class Create extends Component {
           </div>
           <div className="card-body">
             <form onSubmit={e => this.handleSubmit(e)}>
-              {/* <div className="form-group">
+              <div className="form-group">
                 <label>Name</label>
                 <input
                   name="name"
@@ -101,17 +146,17 @@ class Create extends Component {
                   value={this.state.name}
                   onChange={e => this.handleInputChange(e)}
                 />
-              </div> */}
+              </div>
 
-              {/* <div className="form-group">
+              <div className="form-group">
                 <label>Front Sprite URL</label>
                 <input
-                  name="sprite_front_url"
+                  name="imgUrl"
                   className="form-control"
-                  value={this.state.sprite_front_url}
+                  value={this.state.imgUrl}
                   onChange={e => this.handleInputChange(e)}
                 />
-              </div> */}
+              </div>
 
               <div className="form-group">
                 <label>Types</label>
@@ -132,13 +177,13 @@ class Create extends Component {
               </div>
 
               <div className="form-group">
-                <label>Have evolution&ensp;</label>
+                <label>Evolves from another pokemon&ensp;</label>
                 <div className="form-check form-check-inline">
                   <input
                     className="form-check-input"
-                    name="haveEvolution"
+                    name="evolvesFromAnotherPokemon"
                     type="checkbox"
-                    checked={this.state.haveEvolution}
+                    value={this.state.evolvesFromAnotherPokemon}
                     onChange={this.handleHaveEvolution}
                   />
                 </div>
@@ -160,7 +205,9 @@ class Create extends Component {
 const mapStateToProps = (state, ownProps) => {
   return {
     types: state.pokeTypes.items,
-    pokemons: state.pokemons.items
+    pokemons: state.pokemons.items,
+    errors: state.pokemons.errors,
+    success: state.pokemons.success
   };
 };
 
@@ -174,6 +221,9 @@ const mapDispatchToProps = dispatch => {
     },
     fetchPokemons: () => {
       dispatch(fetchPokemons());
+    },
+    clearErrors: () => {
+      dispatch(clearErrors());
     }
   };
 };
