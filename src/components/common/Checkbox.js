@@ -6,6 +6,7 @@ const Checkbox = props => {
       <input
         className="form-check-input"
         type="checkbox"
+        key={props.id}
         value={props.value}
         checked={props.checked}
         onChange={props.onChange}

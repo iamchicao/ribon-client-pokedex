@@ -6,7 +6,6 @@ const initialState = {
 };
 
 const pokemonReducer = (state = initialState, action) => {
-  console.log(action.type);
   switch (action.type) {
     case "FETCH_POKEMONS":
       return {
@@ -28,15 +27,11 @@ const pokemonReducer = (state = initialState, action) => {
         item: action.payload,
         success: true
       };
-    case "REQUEST_FAILURE":
+    case "UPDATE_POKEMON":
       return {
         ...state,
-        errors: action.payload
-      };
-    case "CLEAR_ERROR":
-      return {
-        ...state,
-        errors: action.payload
+        item: action.payload,
+        success: true
       };
     default:
       return state;

@@ -5,9 +5,12 @@ import Select from "../common/Select";
 import { connect } from "react-redux";
 import {
   createPokemon,
-  fetchPokemons,
-  clearErrors
+  fetchPokemons
 } from "../../store/actions/pokemonActions";
+import {
+  clearErrors,
+  clearSuccess
+} from "../../store/actions/responseHandlerActions";
 import { fetchPokeTypes } from "../../store/actions/pokeTypesActions";
 
 class Create extends Component {
@@ -20,7 +23,6 @@ class Create extends Component {
       ancestorSelected: "",
       evolvesFromAnotherPokemon: false
     };
-    console.log("construindo");
   }
 
   componentWillMount() {
@@ -43,6 +45,7 @@ class Create extends Component {
     }
     if (this.props.success) {
       alert("success");
+      this.props.clearSuccess();
       this.props.history.push("/");
     }
   }
@@ -57,8 +60,6 @@ class Create extends Component {
   };
 
   handleInputChange = e => {
-    console.log(e.target.name);
-    console.log(e.target.value);
     this.setState({
       [e.target.name]: e.target.value
     });
@@ -72,7 +73,6 @@ class Create extends Component {
 
   handleSubmit = async e => {
     e.preventDefault();
-    console.log(this.props);
 
     let types = [];
 
@@ -125,7 +125,6 @@ class Create extends Component {
   }
 
   render() {
-    console.log("rendering");
     return (
       <div className="col mt-3">
         <div className="card">
@@ -206,8 +205,8 @@ const mapStateToProps = (state, ownProps) => {
   return {
     types: state.pokeTypes.items,
     pokemons: state.pokemons.items,
-    errors: state.pokemons.errors,
-    success: state.pokemons.success
+    errors: state.responseHandler.errors,
+    success: state.responseHandler.success
   };
 };
 
@@ -224,6 +223,9 @@ const mapDispatchToProps = dispatch => {
     },
     clearErrors: () => {
       dispatch(clearErrors());
+    },
+    clearSuccess: () => {
+      dispatch(clearSuccess());
     }
   };
 };

@@ -12,8 +12,8 @@ class Details extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    const idPrev = prevProps.match.params;
-    const idAct = this.props.match.params;
+    const idPrev = prevProps.match.params.id;
+    const idAct = this.props.match.params.id;
 
     if (idPrev !== idAct) {
       this.props.fetchPokemonById(this.props.match.params.id);
@@ -40,7 +40,6 @@ class Details extends Component {
   render() {
     const { name, types, sprite_front_url, evolutions } = this.props.pokemon;
     const flattenEvolutions = this.flattenEvolutions(evolutions);
-
     return (
       <div className="col">
         <div className="card">

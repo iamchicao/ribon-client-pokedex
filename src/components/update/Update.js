@@ -1,150 +1,170 @@
 import React, { Component } from "react";
-import axios from "axios";
 import Checkbox from "../common/Checkbox";
 import Select from "../common/Select";
 
-export default class Update extends Component {
-  state = {
-    id: this.props.match.params.id,
-    name: " ",
-    sprite_front_url: " ",
-    types: [],
-    evolves_from: " ",
-    formTypes: [],
-    haveEvolution: false,
-    evolutionsList: [],
-    evolutionSelected: null
-  };
+import { connect } from "react-redux";
+import {
+  updatePokemon,
+  fetchPokemons,
+  fetchPokemonById
+} from "../../store/actions/pokemonActions";
+import {
+  clearErrors,
+  clearSuccess
+} from "../../store/actions/responseHandlerActions";
+import { fetchPokeTypes } from "../../store/actions/pokeTypesActions";
 
-  componentDidMount() {
-    this.setInitialMenuState();
+class Update extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      errors: null,
+      typesCheckbox: [],
+      name: "",
+      imgUrl: " ",
+      ancestorSelected: "",
+      evolvesFromAnotherPokemon: false
+    };
   }
 
-  async setInitialMenuState() {
-    let { formTypes, evolutionsList, pokemon } = await this.fetchData();
-    let pokeIds = pokemon.data.types.map(type => {
+  componentWillMount() {
+    this.props.fetchPokemonById(this.props.match.params.id);
+    this.props.fetchPokeTypes();
+    this.props.fetchPokemons();
+  }
+
+  componentDidUpdate(prevProps) {
+    if (
+      prevProps.pokemons !== this.props.pokemons &&
+      this.props.pokemons.length > 0 &&
+      this.props.activePokemon.name.length > 0
+    ) {
+      this.setState({
+        ancestorSelected: this.props.pokemons[0].name,
+        name: this.props.activePokemon.name,
+        imgUrl: this.props.activePokemon.sprite_front_url
+      });
+      this.selectEvolvesFrom();
+      this.setTypesCheckbox();
+    }
+    if (this.props.errors != null) {
+      alert("Um erro aconteceu");
+      this.props.clearErrors();
+    }
+    if (this.props.success) {
+      alert("success");
+      this.props.clearSuccess();
+      this.props.history.push("/");
+    }
+  }
+
+  selectEvolvesFrom = () => {
+    if (this.props.activePokemon.evolves_from != null) {
+      let ancestorSelected = this.props.pokemons.find(
+        evolution => evolution.id === this.props.activePokemon.evolves_from
+      );
+
+      this.setState({
+        evolvesFromAnotherPokemon: true,
+        ancestorSelected: ancestorSelected.name
+      });
+    }
+  };
+
+  setTypesCheckbox = () => {
+    let pokeIds = this.props.activePokemon.types.map(type => {
       return type.id;
     });
 
+    let typesCheckbox = this.props.types.map(type => {
+      type.checked = false;
+      if (pokeIds.includes(type.id)) {
+        type.checked = true;
+      }
+      return type;
+    });
+
     this.setState({
-      formTypes: formTypes.data.map(type => {
-        type.checked = false;
-        if (pokeIds.includes(type.id)) {
-          console.log(type.id);
-          type.checked = true;
-        }
-        return type;
-      }),
-      evolutionsList: evolutionsList.data,
-      name: pokemon.data.name,
-      sprite_front_url: pokemon.data.sprite_front_url
+      typesCheckbox: typesCheckbox
     });
+  };
 
-    if (pokemon.data.evolves_from != null) {
-      this.setState({
-        haveEvolution: true,
-        evolutionSelected: evolutionsList.data.find(
-          evolution => evolution.id === pokemon.data.evolves_from
-        ).name
-      });
-    }
-    console.log(this.state.evolutionSelected);
-  }
-
-  async fetchData() {
-    console.log(this.state.id);
-    const pokemon = await axios.get(
-      `http://127.0.0.1:3000/api/v1/pokemons/${this.state.id}`
-    );
-    const formTypes = await axios.get("http://127.0.0.1:3000/api/v1/types");
-    const evolutionsList = await axios.get(
-      "http://127.0.0.1:3000/api/v1/pokemons"
-    );
-    return { formTypes, evolutionsList, pokemon };
-  }
-
-  handleSubmit = async event => {
-    event.preventDefault();
-    this.state.types.length = 0;
-    this.state.formTypes.forEach(formType => {
-      if (formType.checked) {
-        this.state.types.push(formType.id);
+  handleCheckboxChange = e => {
+    let types = this.state.typesCheckbox;
+    types.forEach(type => {
+      if (type.name === e.target.value) {
+        type.checked = e.target.checked;
       }
     });
 
-    this.state.evolutionsList.forEach(evolution => {
-      if (this.state.evolutionSelected === evolution.name) {
-        this.state.evolves_from = evolution.id;
+    this.setState({ typesCheckbox: types });
+  };
+
+  handleInputChange = e => {
+    this.setState({
+      [e.target.name]: e.target.value
+    });
+  };
+
+  handleHaveEvolution = e => {
+    this.setState({
+      [e.target.name]: e.target.checked
+    });
+  };
+
+  handleSubmit = async e => {
+    e.preventDefault();
+    let types = [];
+
+    this.props.types.filter(type => {
+      if (type.checked === true) {
+        types.push(type.id);
       }
+      return type;
     });
 
-    let body = {
+    this.setState({ types: types });
+
+    let pokemonData = {
       name: this.state.name.toLowerCase(),
-      sprite_front_url: this.state.sprite_front_url,
-      types: this.state.types,
+      sprite_front_url: this.state.imgUrl,
+      types: types,
       evolves_from: null
     };
 
-    if (this.state.haveEvolution) {
-      body.evolves_from = this.state.evolves_from;
+    if (this.state.evolvesFromAnotherPokemon) {
+      this.props.pokemons.filter(pokemon => {
+        if (pokemon.name === this.state.ancestorSelected) {
+          pokemonData.evolves_from = pokemon.id;
+        }
+        return pokemon;
+      });
     }
 
-    console.log(body);
+    let id = this.props.match.params.id;
 
-    try {
-      await axios.put(
-        `http://127.0.0.1:3000/api/v1/pokemons/${this.state.id}`,
-        body
-      );
-      await alert("Seu pokemon foi criado!");
-      await this.props.history.push("/");
-    } catch (err) {
-      alert("Algo de errado aconteceu!");
-    }
+    this.props.updatePokemon(id, pokemonData);
   };
 
   renderEvolutionsList() {
-    return this.state.haveEvolution ? (
+    return this.state.evolvesFromAnotherPokemon &&
+      this.props.pokemons.length > 0 ? (
       <div className="form-group">
         <label>Evolves From</label>
         <select
-          name="evolutionSelected"
-          value={this.state.evolutionSelected}
-          onChange={e => this.handleSelect(e)}
+          name="ancestorSelected"
+          value={this.state.ancestorSelected}
+          onChange={e => this.handleInputChange(e)}
           className="custom-select"
         >
-          {this.state.evolutionsList.map(pokemon => {
+          Select
+          {this.props.pokemons.map(pokemon => {
             return <Select key={pokemon.id} {...pokemon} />;
           })}
         </select>
       </div>
     ) : null;
   }
-
-  handleOnChangeInputsText = event => {
-    this.setState({
-      [event.target.name]: event.target.value
-    });
-  };
-
-  handleTypesCheckbox = event => {
-    let types = this.state.formTypes;
-    types.forEach(type => {
-      if (type.id === Number(event.target.value)) {
-        type.checked = event.target.checked;
-      }
-    });
-    this.setState({ formTypes: types });
-  };
-
-  handleHaveEvolution = event => {
-    console.log(event.target.checked);
-    this.setState({ haveEvolution: event.target.checked });
-  };
-
-  handleSelect = event => {
-    this.setState({ evolutionSelected: event.target.value });
-  };
 
   render() {
     return (
@@ -153,7 +173,7 @@ export default class Update extends Component {
           <div className="card-header">
             <div className="row ">
               <div className="col-5">
-                <h5>New Pokémon</h5>
+                <h5>Novo Pokémon</h5>
               </div>
             </div>
           </div>
@@ -165,30 +185,31 @@ export default class Update extends Component {
                   name="name"
                   className="form-control"
                   value={this.state.name}
-                  onChange={e => this.handleOnChangeInputsText(e)}
+                  onChange={e => this.handleInputChange(e)}
                 />
               </div>
 
               <div className="form-group">
                 <label>Front Sprite URL</label>
                 <input
-                  name="sprite_front_url"
+                  name="imgUrl"
                   className="form-control"
-                  value={this.state.sprite_front_url}
-                  onChange={e => this.handleOnChangeInputsText(e)}
+                  value={this.state.imgUrl}
+                  onChange={e => this.handleInputChange(e)}
                 />
               </div>
 
               <div className="form-group">
                 <label>Types</label>
-                <div className="form-check mr-2">
+                <div className="form-check">
                   <>
-                    {this.state.formTypes.map(type => {
+                    {this.state.typesCheckbox.map(type => {
                       return (
                         <Checkbox
                           key={type.id}
-                          value={type.id}
-                          onChange={this.handleTypesCheckbox}
+                          checked={type.checked}
+                          onChange={this.handleCheckboxChange}
+                          value={type.name}
                           {...type}
                         />
                       );
@@ -198,13 +219,13 @@ export default class Update extends Component {
               </div>
 
               <div className="form-group">
-                <label>Have evolution&ensp;</label>
+                <label>Evolves from another pokemon&ensp;</label>
                 <div className="form-check form-check-inline">
                   <input
                     className="form-check-input"
-                    name="haveEvolution"
+                    name="evolvesFromAnotherPokemon"
                     type="checkbox"
-                    checked={this.state.haveEvolution}
+                    value={this.state.evolvesFromAnotherPokemon}
                     onChange={this.handleHaveEvolution}
                   />
                 </div>
@@ -222,3 +243,41 @@ export default class Update extends Component {
     );
   }
 }
+
+const mapStateToProps = (state, ownProps) => {
+  return {
+    types: state.pokeTypes.items,
+    pokemons: state.pokemons.items,
+    errors: state.responseHandler.errors,
+    success: state.responseHandler.success,
+    activePokemon: state.details
+  };
+};
+
+const mapDispatchToProps = dispatch => {
+  return {
+    updatePokemon: (id, pokemonData) => {
+      dispatch(updatePokemon(id, pokemonData));
+    },
+    fetchPokeTypes: () => {
+      dispatch(fetchPokeTypes());
+    },
+    fetchPokemons: () => {
+      dispatch(fetchPokemons());
+    },
+    clearErrors: () => {
+      dispatch(clearErrors());
+    },
+    clearSuccess: () => {
+      dispatch(clearSuccess());
+    },
+    fetchPokemonById: id => {
+      dispatch(fetchPokemonById(id));
+    }
+  };
+};
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Update);

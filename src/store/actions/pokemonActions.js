@@ -24,14 +24,31 @@ export const createPokemon = pokemonData => dispatch => {
     .post(`${BASE_URL_V1}/pokemons`, pokemonData)
     .then(pokemon =>
       dispatch({
-        type: "CREATE_POKEMON",
+        type: "REQUEST_SUCCESS",
         payload: pokemon
       })
     )
     .catch(err =>
       dispatch({
         type: "REQUEST_FAILURE",
-        payload: err.message || 'Something wrong happened.'
+        payload: err.message || "Something wrong happened."
+      })
+    );
+};
+
+export const updatePokemon = (id, pokemonData) => dispatch => {
+  axios
+    .put(`${BASE_URL_V1}/pokemons/${id}`, pokemonData)
+    .then(pokemon =>
+      dispatch({
+        type: "REQUEST_SUCCESS",
+        payload: pokemon
+      })
+    )
+    .catch(err =>
+      dispatch({
+        type: "REQUEST_FAILURE",
+        payload: err.message || "Something wrong happened."
       })
     );
 };
@@ -43,13 +60,5 @@ export const deletePokemon = id => dispatch => {
       type: "DELETE_POKEMON",
       payload: pokemon
     });
-  });
-};
-
-export const clearErrors = () => dispatch => {
-  console.log("cleaning");
-  dispatch({
-    type: "CLEAR_ERROR",
-    payload: null
   });
 };
