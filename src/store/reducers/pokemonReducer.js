@@ -1,5 +1,6 @@
 const initialState = {
   items: [],
+  item: [],
   searched: "",
   errors: null,
   success: false

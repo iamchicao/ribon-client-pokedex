@@ -31,7 +31,7 @@ class Details extends Component {
     return result.flat();
   }
 
-  handleDelete = async () => {
+  handleDelete = () => {
     console.log(this.props.match.params.id);
     this.props.deletePokemon(this.props.match.params.id);
     this.props.history.push("/");

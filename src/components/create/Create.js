@@ -100,7 +100,6 @@ class Create extends Component {
         return pokemon;
       });
     }
-
     this.props.createPokemon(body);
   };
 
@@ -131,7 +130,7 @@ class Create extends Component {
           <div className="card-header">
             <div className="row ">
               <div className="col-5">
-                <h5>Novo Pokémon</h5>
+                <h5>Create Pokémon</h5>
               </div>
             </div>
           </div>

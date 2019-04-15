@@ -6,13 +6,19 @@ import { connect } from "react-redux";
 import { fetchPokemons } from "../../store/actions/pokemonActions";
 
 class Dashboard extends Component {
-  state = {
-    searched: ""
-  };
+  constructor(props) {
+    super(props);
+    this.state = {
+      searched: ""
+    };
+  }
 
-  componentDidMount() {
+  componentWillMount() {
+    console.log(this.props.pokemons);
     this.props.fetchPokemons();
   }
+
+
 
   handleInput = e => {
     this.setState({ searched: e.target.value });
@@ -29,7 +35,6 @@ class Dashboard extends Component {
 
   render() {
     let filtered = this.filter();
-
     return (
       <div>
         <div className="row mt-4">

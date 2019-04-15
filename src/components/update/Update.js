@@ -173,7 +173,7 @@ class Update extends Component {
           <div className="card-header">
             <div className="row ">
               <div className="col-5">
-                <h5>Novo Pokémon</h5>
+                <h5>Update Pokémon</h5>
               </div>
             </div>
           </div>
@@ -225,6 +225,7 @@ class Update extends Component {
                     className="form-check-input"
                     name="evolvesFromAnotherPokemon"
                     type="checkbox"
+                    checked={this.state.evolvesFromAnotherPokemon}
                     value={this.state.evolvesFromAnotherPokemon}
                     onChange={this.handleHaveEvolution}
                   />

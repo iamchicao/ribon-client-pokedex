@@ -1,16 +1,15 @@
 const initialState = {
   errors: null,
-  success: false,
-  payload: null
+  success: false
 };
 
 const responseHandler = (state = initialState, action) => {
+  console.log(action.type);
   switch (action.type) {
     case "REQUEST_FAILURE":
       return {
         errors: action.payload,
-        success: false,
-        payload: null
+        success: false
       };
     case "REQUEST_SUCCESS":
       return {
@@ -21,14 +20,12 @@ const responseHandler = (state = initialState, action) => {
     case "CLEAR_ERROR":
       return {
         errors: null,
-        success: false,
-        payload: null
+        success: false
       };
     case "CLEAR_SUCCESS":
       return {
         errors: null,
-        success: false,
-        payload: null
+        success: false
       };
     default:
       return state;
